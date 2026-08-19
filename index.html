@@ -9,7 +9,12 @@
 <link rel="apple-touch-icon" href="assets/icon.png">
 <meta property="og:title" content="플랜플 — 올해 목표를 오늘 할 일로">
 <meta property="og:description" content="목표를 오늘 할 일로 쪼개고, 그 자리에서 시간에 앉히는 플래너.">
-<meta property="og:image" content="assets/ko-timeline.png">
+<meta property="og:image" content="https://g-oceans.github.io/planple-web/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://g-oceans.github.io/planple-web/">
+<meta property="og:site_name" content="플랜플">
+<meta name="twitter:card" content="summary_large_image">
 <meta property="og:type" content="website">
 <style>
 /* ─────────────────────────────────────────────────────────────
@@ -183,6 +188,10 @@ section { padding: clamp(3rem, 7vw, 5rem) 0; border-top: 1px solid var(--hairlin
 .sec {
   display: grid; gap: 1.2rem;
 }
+/* 격자·flex 항목은 기본이 min-width:auto라 **내용보다 작아지지 않는다.**
+   그래서 안쪽 갤러리의 overflow-x가 발동하지 못하고 칸이 통째로 늘어나
+   페이지에 가로 스크롤이 생긴다. 0으로 풀어 줘야 갤러리가 제 안에서 흐른다. */
+.sec > * { min-width: 0; }
 @media (min-width: 56rem) {
   .sec { grid-template-columns: var(--gutter) 1fr; gap: 0 2.5rem; }
 }
@@ -317,6 +326,27 @@ footer a:hover { color: var(--ink); border-color: var(--accent); }
   border-radius: 999px; background: var(--accent-wash);
   border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
 }
+
+/* ── 스토어 컷 갤러리 ────────────────────────────────────────
+   가로로 흘려 둔다. 세로로 쌓으면 네 장이 화면을 다 먹는다.
+   스크롤바는 숨기되 **키보드·트랙패드로는 그대로 움직인다**. */
+.gallery {
+  min-width: 0;
+  display: flex; gap: .9rem; overflow-x: auto; padding: .3rem .2rem 1rem;
+  scroll-snap-type: x proximity; scrollbar-width: none;
+  margin-inline: calc(-1 * var(--bleed, 0px));
+  padding-inline: var(--bleed, .2rem);
+}
+.gallery::-webkit-scrollbar { display: none; }
+.gallery img {
+  flex: none; width: min(214px, 46vw); height: auto;
+  border-radius: 16px; scroll-snap-align: start;
+  border: 1px solid var(--hairline); box-shadow: var(--shadow);
+  background: var(--surface);
+}
+.gallery-note {
+  margin: 0 0 .8rem; font-size: .84rem; color: var(--muted);
+}
 </style>
 </head>
 <body>
@@ -403,6 +433,43 @@ footer a:hover { color: var(--ink); border-color: var(--accent); }
       </div>
     </div>
   </div>
+
+
+  <!-- ── 스토어 컷 ──────────────────────────────────────── -->
+  <section id="shots">
+    <div class="wrap sec reveal">
+      <div class="rail"><span class="ko">한눈에</span><span class="en">At a glance</span></div>
+      <div>
+        <h2><span class="ko">이렇게 생겼습니다</span><span class="en">Here’s what it looks like</span></h2>
+        <p class="gallery-note">
+          <span class="ko">App Store에 올라가 있는 화면 그대로입니다. 옆으로 넘겨 보세요.</span>
+          <span class="en">The same shots you’ll see on the App Store. Swipe sideways.</span>
+        </p>
+        <div class="gallery">
+          <img data-ko-src="assets/ko-mk1.png" data-en-src="assets/en-mk1.png" src="assets/ko-mk1.png"
+               width="440" height="956" loading="lazy"
+               alt="계획대로, 실행하다 — 플랜플 소개"
+               data-ko-alt="계획대로, 실행하다 — 플랜플 소개"
+               data-en-alt="Plan it. Execute it. — Planple overview">
+          <img data-ko-src="assets/ko-mk2.png" data-en-src="assets/en-mk2.png" src="assets/ko-mk2.png"
+               width="440" height="956" loading="lazy"
+               alt="목표에서 오늘까지 — 연·월·주·일 목표가 단계별로 내려오는 화면"
+               data-ko-alt="목표에서 오늘까지 — 연·월·주·일 목표가 단계별로 내려오는 화면"
+               data-en-alt="From goals to today — yearly, monthly, weekly and daily goals in one place">
+          <img data-ko-src="assets/ko-mk3.png" data-en-src="assets/en-mk3.png" src="assets/ko-mk3.png"
+               width="440" height="956" loading="lazy"
+               alt="해야 할 일을 실행할 시간으로 — 할 일을 타임라인에 배치"
+               data-ko-alt="해야 할 일을 실행할 시간으로 — 할 일을 타임라인에 배치"
+               data-en-alt="Turn tasks into time — placing a to-do onto the timeline">
+          <img data-ko-src="assets/ko-mk4.png" data-en-src="assets/en-mk4.png" src="assets/ko-mk4.png"
+               width="440" height="956" loading="lazy"
+               alt="혼자서도 함께도 — 프로젝트별 관리와 공유"
+               data-ko-alt="혼자서도 함께도 — 프로젝트별 관리와 공유"
+               data-en-alt="Alone or together — manage by project and share">
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- ── 문제 ───────────────────────────────────────────── -->
   <section id="how">
