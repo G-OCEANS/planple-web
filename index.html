@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>플랜플 — 올해 목표를 오늘 할 일로</title>
+<meta name="description" content="올해 목표를 이달·이번 주·오늘 할 일로 쪼개고, 바로 아래 24시간 타임라인에 앉히는 플래너. 한 일정에 알람 여러 개. 가입 없음, 광고 없음.">
+<link rel="icon" href="assets/icon.png">
+<link rel="apple-touch-icon" href="assets/icon.png">
+<meta property="og:title" content="플랜플 — 올해 목표를 오늘 할 일로">
+<meta property="og:description" content="목표를 오늘 할 일로 쪼개고, 그 자리에서 시간에 앉히는 플래너.">
+<meta property="og:image" content="assets/ko-timeline.png">
+<meta property="og:type" content="website">
+<style>
+/* ─────────────────────────────────────────────────────────────
+   팔레트 — 앱의 seed(#4A90D9)를 그대로 쓴다. 중립색은 순회색이
+   아니라 파랑 쪽으로 살짝 기울여 "고른 색"으로 읽히게 한다.
+   ───────────────────────────────────────────────────────────── */
+:root {
+  color-scheme: light dark;
+  --paper:    #FBFCFE;
+  --surface:  #FFFFFF;
+  --sunken:   #F2F5FA;
+  --ink:      #14181D;
+  --muted:    #6B7480;
+  --hairline: #E4E9F0;
+  --accent:   #4A90D9;
+  --accent-ink: #2C6BA6;
+  --accent-wash: #EBF3FB;
+  /* 주 버튼은 accent를 그대로 쓰지 않는다 — 흰 글자와의 명암비가 모자란다. */
+  --btn-bg:   #2C6BA6;
+  --btn-fg:   #FFFFFF;
+  --shadow: 0 1px 2px rgba(20,24,29,.04), 0 8px 24px -12px rgba(20,24,29,.10);
+  --radius: 18px;
+  --gutter: 7rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper:    #0F1216;
+    --surface:  #171B20;
+    --sunken:   #1D2229;
+    --ink:      #E6E9EE;
+    --muted:    #98A2AE;
+    --hairline: #262D36;
+    --accent:   #5A9CE0;
+    --accent-ink: #8FBEE9;
+    --accent-wash: #182430;
+    /* 어두운 배경에서는 반대로 — 밝은 파랑 위에 어두운 글자가 훨씬 잘 읽힌다. */
+    --btn-bg:   #7FB4E6;
+    --btn-fg:   #0E1319;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+  }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 17px/1.7 -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  letter-spacing: -0.003em;
+}
+
+/* 언어 토글 — 내용은 둘 다 문서에 있고 lang 속성이 무엇을 보일지 정한다.
+   자바스크립트가 죽어도 기본 언어(ko)는 그대로 읽힌다. */
+html[lang="ko"] .en, html[lang="en"] .ko { display: none; }
+
+.wrap { max-width: 68rem; margin: 0 auto; padding: 0 1.5rem; }
+
+/* ── 상단 바 ───────────────────────────────────────────────── */
+header {
+  position: sticky; top: 0; z-index: 20;
+  background: var(--paper);
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter: saturate(1.6) blur(12px);
+  border-bottom: 1px solid var(--hairline);
+}
+.bar { display: flex; align-items: center; gap: 1rem; height: 60px; }
+.brand { display: flex; align-items: center; gap: .6rem; font-weight: 700;
+         letter-spacing: -0.02em; text-decoration: none; color: var(--ink); }
+.brand img { width: 28px; height: 28px; border-radius: 7px; }
+.bar .spacer { flex: 1; }
+
+.langs { display: flex; gap: 2px; padding: 2px; border-radius: 999px;
+         background: var(--sunken); }
+.langs button {
+  font: inherit; font-size: .78rem; font-weight: 600;
+  padding: .3rem .7rem; border: 0; border-radius: 999px;
+  background: transparent; color: var(--muted); cursor: pointer;
+}
+.langs button[aria-pressed="true"] { background: var(--surface); color: var(--ink);
+  box-shadow: 0 1px 2px rgba(20,24,29,.10); }
+
+/* ── 버튼 ─────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  padding: .85rem 1.35rem; border-radius: 13px; text-decoration: none;
+  font-weight: 650; font-size: .96rem; letter-spacing: -0.01em;
+  transition: transform .12s ease, filter .12s ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--btn-bg); color: var(--btn-fg); }
+.btn-primary:hover { filter: brightness(1.06); }
+.btn-quiet { color: var(--accent-ink); border: 1.5px solid var(--hairline); }
+.btn-quiet:hover { border-color: var(--accent); }
+.btn-sm { padding: .5rem 1rem; font-size: .87rem; border-radius: 11px; }
+:where(a, button):focus-visible { outline: 2.5px solid var(--accent);
+  outline-offset: 2px; border-radius: 8px; }
+
+/* ── 히어로 ───────────────────────────────────────────────── */
+.hero { padding: clamp(3.5rem, 9vw, 6.5rem) 0 clamp(2.5rem, 6vw, 4rem); }
+.hero-grid { display: grid; gap: clamp(2.5rem, 6vw, 4rem); align-items: center; }
+@media (min-width: 62rem) { .hero-grid { grid-template-columns: 1.05fr .95fr; } }
+
+.eyebrow {
+  font-size: .76rem; font-weight: 700; letter-spacing: .1em;
+  letter-spacing: .06em; color: var(--accent-ink); margin: 0 0 1rem;
+}
+h1 {
+  margin: 0 0 1.1rem; font-weight: 750;
+  font-size: clamp(2.15rem, 6.2vw, 3.5rem); line-height: 1.13;
+  letter-spacing: -0.035em; text-wrap: balance;
+}
+h1 .soft { color: var(--muted); }
+.lede { margin: 0 0 1.9rem; font-size: clamp(1.02rem, 2.1vw, 1.16rem);
+        color: var(--muted); max-width: 34ch; text-wrap: pretty; }
+.cta-row { display: flex; flex-wrap: wrap; gap: .7rem; align-items: center; }
+.cta-note { margin: 1.1rem 0 0; font-size: .84rem; color: var(--muted); }
+
+/* ── 히어로의 계단 — 이 앱이 하는 일 자체 ─────────────────────
+   설명하지 않고 보여 준다: 연간 목표가 아래로 내려와 마지막에
+   시각이 붙은 일정 블록이 된다. */
+.cascade {
+  background: var(--surface); border: 1px solid var(--hairline);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 1.4rem 1.3rem; display: grid; gap: .1rem;
+}
+.step {
+  display: grid; grid-template-columns: 4.6rem 1fr; align-items: baseline;
+  gap: .9rem; padding: .68rem .2rem;
+  animation: rise .55s cubic-bezier(.2,.7,.3,1) backwards;
+}
+.step + .step { border-top: 1px dashed var(--hairline); }
+.step:nth-child(1) { animation-delay: .05s; }
+.step:nth-child(2) { animation-delay: .22s; }
+.step:nth-child(3) { animation-delay: .39s; }
+.step:nth-child(4) { animation-delay: .56s; }
+.step .scale {
+  font-size: .74rem; font-weight: 700; letter-spacing: .04em;
+  color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.step .what { font-size: 1.03rem; font-weight: 550; letter-spacing: -0.015em; }
+.step .shrink { font-size: .95rem; }
+
+/* 마지막 칸은 앱의 일정 블록처럼 — 왼쪽 색 띠 + 시각 */
+.step.landed { padding: .8rem .2rem .3rem; }
+.step.landed .block {
+  background: var(--accent-wash); border-left: 3px solid var(--accent);
+  border-radius: 0 10px 10px 0; padding: .6rem .8rem;
+}
+.step.landed .time {
+  display: block; font-size: .78rem; color: var(--accent-ink);
+  font-variant-numeric: tabular-nums; margin-top: .15rem;
+}
+.step.landed .bells { display: flex; gap: .35rem; margin-top: .5rem; flex-wrap: wrap; }
+.bell {
+  font-size: .7rem; padding: .18rem .5rem; border-radius: 999px;
+  border: 1px solid var(--hairline);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  color: var(--accent-ink); font-variant-numeric: tabular-nums;
+}
+@keyframes rise { from { opacity: 0; transform: translateY(9px); } }
+@media (prefers-reduced-motion: reduce) {
+  .step { animation: none; }
+}
+
+/* ── 섹션 — 왼쪽 시간 여백이 페이지의 척추다 ────────────────── */
+section { padding: clamp(3rem, 7vw, 5rem) 0; border-top: 1px solid var(--hairline); }
+.sec {
+  display: grid; gap: 1.2rem;
+}
+@media (min-width: 56rem) {
+  .sec { grid-template-columns: var(--gutter) 1fr; gap: 0 2.5rem; }
+}
+.rail {
+  font-size: .76rem; font-weight: 700; letter-spacing: .06em;
+  color: var(--accent-ink); font-variant-numeric: tabular-nums;
+  padding-top: .35rem; text-wrap: nowrap;
+}
+@media (min-width: 56rem) {
+  .rail { text-align: right; border-right: 2px solid var(--hairline);
+          padding-right: 1.4rem; position: sticky; top: 84px; align-self: start; }
+}
+h2 { margin: 0 0 .7rem; font-size: clamp(1.5rem, 3.4vw, 2rem);
+     font-weight: 720; letter-spacing: -0.028em; line-height: 1.22;
+     text-wrap: balance; }
+.sec p { margin: 0 0 1rem; color: var(--muted); max-width: 56ch; text-wrap: pretty; }
+.sec p strong { color: var(--ink); font-weight: 650; }
+.sec p:last-child { margin-bottom: 0; }
+
+.pair { display: grid; gap: 2rem; align-items: start; }
+@media (min-width: 44rem) { .pair { grid-template-columns: 1fr auto; gap: 2.8rem; } }
+
+/* 스크린샷 — 기기 틀은 얇게. 화면이 주인공이다. */
+.shot {
+  width: min(246px, 64vw); border-radius: 24px; padding: 5px;
+  background: var(--surface); border: 1px solid var(--hairline);
+  box-shadow: var(--shadow); justify-self: center;
+}
+.shot img { display: block; width: 100%; height: auto; border-radius: 20px; }
+
+ul.ticks { margin: 0; padding: 0; list-style: none; display: grid; gap: .55rem; }
+ul.ticks li { position: relative; padding-left: 1.5rem; color: var(--muted);
+              max-width: 54ch; }
+ul.ticks li::before {
+  content: ""; position: absolute; left: .1rem; top: .62em;
+  width: .46rem; height: .46rem; border-radius: 50%; background: var(--accent);
+}
+ul.ticks li strong { color: var(--ink); font-weight: 650; }
+
+.tag {
+  display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .05em;
+  padding: .2rem .55rem; border-radius: 999px; margin-left: .5rem;
+  background: var(--accent-wash); color: var(--accent-ink);
+  vertical-align: .18em;
+}
+
+/* ── 요금 ─────────────────────────────────────────────────── */
+.plans { display: grid; gap: 1rem; }
+@media (min-width: 44rem) { .plans { grid-template-columns: 1fr 1fr; } }
+.plan {
+  background: var(--surface); border: 1px solid var(--hairline);
+  border-radius: var(--radius); padding: 1.5rem 1.4rem;
+}
+.plan.lead { border-color: color-mix(in srgb, var(--accent) 42%, var(--hairline)); }
+@supports not (color: color-mix(in srgb, red 50%, blue)) {
+  .plan.lead { border-color: var(--accent); }
+}
+.plan h3 { margin: 0 0 .2rem; font-size: 1.05rem; font-weight: 700;
+           letter-spacing: -0.02em; }
+.price { font-size: 1.85rem; font-weight: 730; letter-spacing: -0.035em;
+         margin: .3rem 0 1rem; font-variant-numeric: tabular-nums; }
+.price small { font-size: .8rem; font-weight: 550; color: var(--muted);
+               letter-spacing: 0; margin-left: .3rem; }
+
+/* ── 마무리 ───────────────────────────────────────────────── */
+.closer { text-align: center; }
+.closer h2 { max-width: 26ch; margin-inline: auto; }
+.closer .cta-row { justify-content: center; }
+
+footer { border-top: 1px solid var(--hairline); padding: 2.5rem 0 3.5rem;
+         font-size: .86rem; color: var(--muted); }
+.foot { display: flex; flex-wrap: wrap; gap: .5rem 1.4rem; align-items: center; }
+footer a { color: var(--muted); text-decoration: none;
+           border-bottom: 1px solid var(--hairline); }
+footer a:hover { color: var(--ink); border-color: var(--accent); }
+.foot .spacer { flex: 1; }
+
+/* ── 히어로 뒤 은은한 빛 ──────────────────────────────────────
+   앱 색(seed)에서 뽑은 아주 옅은 원 두 개. 배경에 깊이를 주되
+   내용을 방해하지 않을 만큼만 흐리게 둔다. */
+/* 뒤의 장식 원이 화면 밖으로 나가 가로 스크롤을 만든다. body에 걸면
+   소용없다 — body의 overflow는 뷰포트로 전파되고 body 자신은 visible이
+   되어 제 자식을 못 자른다. 넘치는 당사자인 히어로에 직접 건다.
+   hidden이 아니라 clip을 쓰는 건 상단 바의 sticky를 깨지 않기 위해서다. */
+.hero { position: relative; isolation: isolate; overflow: clip; }
+.hero::before, .hero::after {
+  content: ""; position: absolute; z-index: -1; border-radius: 50%;
+  filter: blur(80px); opacity: .5; pointer-events: none;
+}
+.hero::before {
+  width: 38rem; height: 38rem; top: -14rem; right: -12rem;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 30%, transparent), transparent 70%);
+}
+.hero::after {
+  width: 26rem; height: 26rem; bottom: -10rem; left: -10rem;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 18%, transparent), transparent 70%);
+}
+@media (prefers-reduced-motion: reduce) { .hero::before, .hero::after { display: none; } }
+
+/* ── 스크롤 등장 ──────────────────────────────────────────────
+   자바스크립트가 없거나 모션을 줄인 환경에서는 처음부터 보인다.
+   (opacity를 JS로만 켜면 JS가 죽었을 때 페이지가 통째로 사라진다) */
+.js-reveal .reveal { opacity: 0; transform: translateY(14px); }
+.js-reveal .reveal.in { opacity: 1; transform: none;
+  transition: opacity .5s ease, transform .5s cubic-bezier(.2,.7,.3,1); }
+@media (prefers-reduced-motion: reduce) {
+  .js-reveal .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* ── 작은 기능 격자 ───────────────────────────────────────────── */
+.grid { display: grid; gap: .9rem; margin-top: .4rem; }
+@media (min-width: 34rem) { .grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 60rem) { .grid { grid-template-columns: 1fr 1fr 1fr; } }
+.tile {
+  background: var(--surface); border: 1px solid var(--hairline);
+  border-radius: 14px; padding: 1.1rem 1.15rem;
+}
+.tile h3 {
+  margin: 0 0 .3rem; font-size: .97rem; font-weight: 680;
+  letter-spacing: -0.018em; display: flex; align-items: center; gap: .5rem;
+}
+.tile h3 svg { width: 17px; height: 17px; flex: none; color: var(--accent-ink); }
+.tile p { margin: 0; font-size: .88rem; color: var(--muted); }
+
+/* ── 사실 한 줄 (히어로 아래) ─────────────────────────────────── */
+.facts {
+  display: flex; flex-wrap: wrap; gap: .45rem .55rem; margin: 1.1rem 0 0;
+  padding: 0; list-style: none;
+}
+.facts li {
+  font-size: .78rem; color: var(--accent-ink); padding: .28rem .62rem;
+  border-radius: 999px; background: var(--accent-wash);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="#top">
+      <img src="assets/icon.png" alt="">
+      <span><span class="ko">플랜플</span><span class="en">Planple</span></span>
+    </a>
+    <span class="spacer"></span>
+    <div class="langs" role="group" aria-label="Language">
+      <button type="button" data-set-lang="ko" aria-pressed="true">한국어</button>
+      <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
+    </div>
+    <a class="btn btn-primary btn-sm" href="https://apps.apple.com/app/id6793577924">
+      <span class="ko">받기</span><span class="en">Get</span>
+    </a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ── 히어로 ─────────────────────────────────────────── -->
+  <div class="wrap hero">
+    <div class="hero-grid">
+      <div>
+        <p class="eyebrow">
+          <span class="ko">iPhone · iPad</span><span class="en">iPhone · iPad</span>
+        </p>
+        <h1>
+          <span class="ko">올해 목표를<br>오늘 할 일로<br><span class="soft">쪼갭니다</span></span>
+          <span class="en">This year's goal,<br>broken down to<br><span class="soft">today's task</span></span>
+        </h1>
+        <p class="lede">
+          <span class="ko">쪼갠 할 일은 바로 아래 24시간 타임라인에 앉습니다.
+            계획하는 화면과 실행하는 화면이 따로 있지 않습니다.</span>
+          <span class="en">What you break down lands on the 24-hour timeline right
+            below it. There is no separate screen for planning and doing.</span>
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://apps.apple.com/app/id6793577924">
+            <span class="ko">App Store에서 받기</span><span class="en">Get it on the App Store</span>
+          </a>
+          <a class="btn btn-quiet" href="#how">
+            <span class="ko">어떻게 되는지 보기</span><span class="en">See how it works</span>
+          </a>
+        </div>
+        <ul class="facts">
+          <li><span class="ko">가입 없음</span><span class="en">No sign-up</span></li>
+          <li><span class="ko">광고 없음</span><span class="en">No ads</span></li>
+          <li><span class="ko">추적 없음</span><span class="en">No tracking</span></li>
+          <li><span class="ko">한국어 · 영어</span><span class="en">English · Korean</span></li>
+          <li><span class="ko">iPhone · iPad</span><span class="en">iPhone · iPad</span></li>
+        </ul>
+      </div>
+
+      <!-- 이 앱이 하는 일을 설명하지 않고 보여 준다 -->
+      <div class="cascade" aria-label="목표가 오늘 할 일로 내려오는 과정">
+        <div class="step">
+          <span class="scale"><span class="ko">올해</span><span class="en">Year</span></span>
+          <span class="what"><span class="ko">책 24권 읽기</span><span class="en">Read 24 books</span></span>
+        </div>
+        <div class="step">
+          <span class="scale"><span class="ko">이달</span><span class="en">Month</span></span>
+          <span class="what shrink"><span class="ko">2권</span><span class="en">2 books</span></span>
+        </div>
+        <div class="step">
+          <span class="scale"><span class="ko">이번 주</span><span class="en">Week</span></span>
+          <span class="what shrink"><span class="ko">200쪽</span><span class="en">200 pages</span></span>
+        </div>
+        <div class="step landed">
+          <span class="scale"><span class="ko">오늘</span><span class="en">Today</span></span>
+          <span class="block">
+            <span class="what shrink"><span class="ko">30분 읽기</span><span class="en">Read for 30 min</span></span>
+            <span class="time">08:00 – 08:30</span>
+            <span class="bells">
+              <span class="bell"><span class="ko">1시간 전</span><span class="en">1 hr before</span></span>
+              <span class="bell"><span class="ko">10분 전</span><span class="en">10 min before</span></span>
+              <span class="bell"><span class="ko">정각</span><span class="en">at start</span></span>
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 문제 ───────────────────────────────────────────── -->
+  <section id="how">
+    <div class="wrap sec reveal">
+      <div class="rail"><span class="ko">왜</span><span class="en">Why</span></div>
+      <div>
+        <h2>
+          <span class="ko">목표가 3일 만에 사라지는 건 의지 문제가 아닙니다</span>
+          <span class="en">Goals don't die in three days because you lack willpower</span>
+        </h2>
+        <p>
+          <span class="ko">“체력 만들기”는 목표지 <strong>오늘 할 일이 아닙니다.</strong>
+            오늘 아침 7시까지 내려오지 않으면 하루는 그냥 흘러갑니다.</span>
+          <span class="en">“Get fit” is a goal, <strong>not a task for today.</strong>
+            Unless it comes down to 7 a.m. this morning, the day just passes.</span>
+        </p>
+        <p>
+          <span class="ko">연간 목표는 메모장에, 오늘 할 일은 투두 앱에, 일정은 캘린더에.
+            따로 놀면 연말에 목표는 그대로입니다. 플랜플은 그 네 단계를
+            <strong>한 화면에서 아래로 내려오게</strong> 만들었습니다.</span>
+          <span class="en">Yearly goals in a notes app, today's tasks in a to-do app,
+            events in a calendar. Kept apart, the goal is still untouched in December.
+            Planple puts all four levels <strong>on one screen, descending.</strong></span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 쪼갠다 ─────────────────────────────────────────── -->
+  <section>
+    <div class="wrap sec reveal">
+      <div class="rail"><span class="ko">연 → 오늘</span><span class="en">Year → Today</span></div>
+      <div class="pair">
+        <div>
+          <h2><span class="ko">쪼갭니다</span><span class="en">Break it down</span></h2>
+          <p>
+            <span class="ko">네 단계가 한 화면에 있습니다. 위 칸의 목표를 눌러
+              아래 단계로 내려보내면, 그게 곧 다음 기간의 할 일이 됩니다.</span>
+            <span class="en">All four levels live on one screen. Send a goal from the
+              row above down to the next level, and it becomes that period's task.</span>
+          </p>
+          <ul class="ticks">
+            <li><span class="ko"><strong>복잡한 분류를 먼저 만들 필요가 없습니다.</strong>
+              일·삶·사이드는 필요할 때 칩 하나로 나눠 봅니다.</span>
+              <span class="en"><strong>No taxonomy to set up first.</strong>
+              Split work, life, and side projects with a single chip when you need to.</span></li>
+            <li><span class="ko">월·주 캘린더로 흐름을 보고, 하루는 타임라인으로 자세히</span>
+              <span class="en">Month and week for the shape of things, the timeline for the detail</span></li>
+            <li><span class="ko">못 끝낸 할 일은 <strong>다음 기간으로 넘길 수 있습니다</strong></span>
+              <span class="en">Didn't finish? <strong>Carry it to the next period</strong></span></li>
+          </ul>
+        </div>
+        <div class="shot"><img data-ko-src="assets/ko-tdl.png" data-en-src="assets/en-tdl.png"
+          src="assets/ko-tdl.png" alt="연간·이달·이번 주·오늘 목표가 한 화면에 단계별로 놓인 화면" data-ko-alt="연간·이달·이번 주·오늘 목표가 한 화면에 단계별로 놓인 화면" data-en-alt="Yearly, monthly, weekly and today’s goals stacked on one screen" width="560" height="1218" loading="lazy"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 앉힌다 ─────────────────────────────────────────── -->
+  <section>
+    <div class="wrap sec reveal">
+      <div class="rail">08:00</div>
+      <div class="pair">
+        <div>
+          <h2><span class="ko">시간에 앉힙니다</span><span class="en">Put it on the clock</span></h2>
+          <p>
+            <span class="ko">오늘 할 일 <strong>바로 아래가 24시간 타임라인</strong>입니다.
+              정한 할 일을 그 자리에서 원하는 시각에 씁니다. 앱을 옮겨 다니지 않습니다.</span>
+            <span class="en">The <strong>24-hour timeline sits right below</strong> today's
+              tasks. Write what you decided straight onto the hour you want — no app-hopping.</span>
+          </p>
+          <ul class="ticks">
+            <li><span class="ko">자정을 넘는 일정도 그대로 (23:00 – 01:00)</span>
+              <span class="en">Events that cross midnight work as-is (23:00 – 01:00)</span></li>
+            <li><span class="ko">여러 날에 걸친 일정은 걸쳐 있는 모든 날짜에 띠로 보입니다</span>
+              <span class="en">Multi-day events show as a band on every day they span</span></li>
+            <li><span class="ko">홈·잠금 화면 위젯 세 종류 — 앱을 열지 않아도 오늘이 보입니다</span>
+              <span class="en">Three Home and Lock Screen widgets — today without opening the app</span></li>
+          </ul>
+        </div>
+        <div class="shot"><img data-ko-src="assets/ko-timeline.png" data-en-src="assets/en-timeline.png"
+          src="assets/ko-timeline.png" alt="오늘 할 일 아래에 24시간 타임라인이 이어진 화면" data-ko-alt="오늘 할 일 아래에 24시간 타임라인이 이어진 화면" data-en-alt="The 24-hour timeline continuing below today’s tasks" width="560" height="1218" loading="lazy"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 울린다 ─────────────────────────────────────────── -->
+  <section>
+    <div class="wrap sec reveal">
+      <div class="rail"><span class="ko">알람 ×3</span><span class="en">Alarms ×3</span></div>
+      <div class="pair">
+        <div>
+          <h2><span class="ko">알람은 한 번으로 안 됩니다</span><span class="en">One alarm is never enough</span></h2>
+          <p>
+            <span class="ko">알람 하나는 그냥 끄게 됩니다. 그래서 한 일정에
+              <strong>여러 개를 붙일 수 있게</strong> 했습니다 — 1시간 전, 10분 전, 정각.</span>
+            <span class="en">A single alarm just gets dismissed. So you can attach
+              <strong>as many as you want</strong> to one event — an hour before,
+              ten minutes before, right at the start.</span>
+          </p>
+          <ul class="ticks">
+            <li><span class="ko"><strong>앱을 완전히 종료해 둬도</strong> 정확한 시각에 울립니다</span>
+              <span class="en"><strong>They fire even with the app fully closed</strong></span></li>
+            <li><span class="ko">기기를 재부팅해도 예약이 남습니다</span>
+              <span class="en">Reboot the device and the schedule survives</span></li>
+            <li><span class="ko">여행이나 서머타임으로 시간대가 바뀌어도 어긋나지 않습니다</span>
+              <span class="en">Travel or daylight saving won't shift them off</span></li>
+          </ul>
+        </div>
+        <div class="shot"><img data-ko-src="assets/ko-alarms.png" data-en-src="assets/en-alarms.png"
+          src="assets/ko-alarms.png" alt="한 일정에 1시간 전·10분 전·정각 알람이 붙은 화면" data-ko-alt="한 일정에 1시간 전·10분 전·정각 알람이 붙은 화면" data-en-alt="One event with alarms an hour before, ten minutes before, and at the start" width="560" height="1218" loading="lazy"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 밀렸을 때 ──────────────────────────────────────── -->
+  <section>
+    <div class="wrap sec reveal">
+      <div class="rail"><span class="ko">밀기</span><span class="en">Shift</span></div>
+      <div class="pair">
+        <div>
+          <h2><span class="ko">계획은 어차피 밀립니다</span><span class="en">Plans slip. That's fine.</span></h2>
+          <p>
+            <span class="ko">일정 하나를 눌러 뒤로 밀면 <strong>남은 하루가 알람까지
+              통째로 이동</strong>합니다. 하루를 버리는 게 아니라 미루는 것뿐이라
+              그날이 무너지지 않습니다.</span>
+            <span class="en">Push one event back and <strong>the rest of the day moves
+              with it, alarms included.</strong> You're postponing the day, not
+              throwing it away — so it doesn't collapse.</span>
+          </p>
+          <ul class="ticks">
+            <li><span class="ko">10분 · 30분 · 1시간, 아니면 직접 입력</span>
+              <span class="en">10 minutes, 30, an hour — or type your own</span></li>
+            <li><span class="ko">잘못 밀었으면 <strong>바로 되돌릴 수 있습니다</strong></span>
+              <span class="en">Pushed the wrong one? <strong>Undo it right away</strong></span></li>
+            <li><span class="ko">반복 일정은 건드리지 않습니다 — 시리즈 전체가 밀리는 사고를 막습니다</span>
+              <span class="en">Repeating events are left alone, so a whole series can't slide by accident</span></li>
+          </ul>
+        </div>
+        <div class="shot"><img data-ko-src="assets/ko-shift.png" data-en-src="assets/en-shift.png"
+          src="assets/ko-shift.png" alt="일정을 뒤로 밀면 남은 하루가 함께 이동하는 화면" data-ko-alt="일정을 뒤로 밀면 남은 하루가 함께 이동하는 화면" data-en-alt="Pushing one event back moves the rest of the day with it" width="560" height="1218" loading="lazy"></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ── 넓게 보기 ──────────────────────────────────────── -->
+  <section>
+    <div class="wrap sec reveal">
+      <div class="rail"><span class="ko">넓게</span><span class="en">Zoom out</span></div>
+      <div class="pair">
+        <div>
+          <h2><span class="ko">한 발 물러서서 보기</span><span class="en">Step back and look</span></h2>
+          <p>
+            <span class="ko">하루만 들여다보면 흐름이 안 보입니다.
+              달·주·연 단위로 넓혀 보고, 다시 하루로 좁혀 들어옵니다.</span>
+            <span class="en">Staring at one day hides the shape of things.
+              Widen out to a month, a week, a year — then come back to today.</span>
+          </p>
+          <ul class="ticks">
+            <li><span class="ko"><strong>월 · 주 · 연간</strong> 세 가지 보기</span>
+              <span class="en"><strong>Month, week and year</strong> views</span></li>
+            <li><span class="ko">넓은 화면에서는 달력 옆에 <strong>그날 하루가 같이</strong> 보입니다</span>
+              <span class="en">On wide screens a day's schedule sits <strong>right beside the calendar</strong></span></li>
+            <li><span class="ko">여러 날에 걸친 일정은 걸쳐 있는 모든 날짜에 표시됩니다</span>
+              <span class="en">Multi-day events appear on every day they span</span></li>
+          </ul>
+        </div>
+        <div class="shot"><img data-ko-src="assets/ko-calendar.png" data-en-src="assets/en-calendar.png"
+          src="assets/ko-calendar.png" width="560" height="1218" loading="lazy"
+          alt="월간 달력에서 날짜를 고르면 그날 일정이 함께 보이는 화면"
+          data-ko-alt="월간 달력에서 날짜를 고르면 그날 일정이 함께 보이는 화면"
+          data-en-alt="A month calendar with the selected day’s schedule beside it"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 함께 ───────────────────────────────────────────── -->
+  <section>
+    <div class="wrap sec reveal">
+      <div class="rail"><span class="ko">함께</span><span class="en">Together</span></div>
+      <div class="pair">
+        <div>
+          <h2>
+            <span class="ko">같이 세워야 하는 계획도 있죠</span>
+            <span class="en">Some plans you make with someone</span>
+            <span class="tag"><span class="ko">프로</span><span class="en">PRO</span></span>
+          </h2>
+          <p>
+            <span class="ko">프로젝트를 링크로 초대하면 그 프로젝트의 일정과 할 일을
+              함께 봅니다. <strong>회원가입은 없습니다.</strong></span>
+            <span class="en">Invite someone to a project by link and share its events
+              and to-dos. <strong>There's no sign-up.</strong></span>
+          </p>
+          <ul class="ticks">
+            <li><span class="ko">항목마다 누가 썼는지 보이고, <strong>고치고 지우는 건 각자 자기 것만</strong></span>
+              <span class="en">Every item shows its author, and <strong>each person edits only their own</strong></span></li>
+            <li><span class="ko">링크를 받아도 방장이 승인해야 들어올 수 있습니다</span>
+              <span class="en">Having the link isn't enough — the owner has to approve you</span></li>
+            <li><span class="ko">공유를 <strong>시작</strong>하는 건 프로, <strong>초대받아 참여</strong>하는 건 무료</span>
+              <span class="en"><strong>Starting</strong> a share needs Pro; <strong>joining</strong> by invite is free</span></li>
+          </ul>
+        </div>
+        <div class="shot"><img data-ko-src="assets/ko-share.png" data-en-src="assets/en-share.png"
+          src="assets/ko-share.png" alt="공유 프로젝트의 초대 링크와 참여자 목록이 보이는 화면" data-ko-alt="공유 프로젝트의 초대 링크와 참여자 목록이 보이는 화면" data-en-alt="A shared project showing its invite link and member list" width="560" height="1218" loading="lazy"></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ── 그 밖에 ────────────────────────────────────────── -->
+  <section>
+    <div class="wrap sec reveal">
+      <div class="rail"><span class="ko">그 밖에</span><span class="en">Also</span></div>
+      <div>
+        <h2><span class="ko">있으면 편한 것들</span><span class="en">The rest of it</span></h2>
+        <p>
+          <span class="ko">눈에 띄지 않지만, 없으면 아쉬운 것들입니다. 여기 있는 여섯 가지도 무료입니다.</span>
+          <span class="en">Quiet things you’d miss if they weren’t there. These six are free too.</span>
+        </p>
+        <div class="grid">
+        <div class="tile">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg><span class="ko">하루 리뷰</span><span class="en">Daily review</span></h3>
+          <p><span class="ko">저녁에 그날을 되돌아보고, 이어온 날을 셉니다.</span><span class="en">Look back on the day and count the streak you’ve kept.</span></p>
+        </div>
+        <div class="tile">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="ko">검색</span><span class="en">Search</span></h3>
+          <p><span class="ko">일정과 할 일을 한 번에 찾습니다.</span><span class="en">Find events and to-dos in one place.</span></p>
+        </div>
+        <div class="tile">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2v4M7 2v4M3 9h18"/><rect x="3" y="4" width="18" height="17" rx="2.5"/></svg><span class="ko">반복 일정</span><span class="en">Repeating events</span></h3>
+          <p><span class="ko">매일·매주·매월. 자정을 넘는 일정도 그대로.</span><span class="en">Daily, weekly, monthly — and past midnight, as-is.</span></p>
+        </div>
+        <div class="tile">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M6 6 4.5 4.5M18 6l1.5-1.5M6 18l-1.5 1.5M18 18l1.5 1.5"/><circle cx="12" cy="12" r="4"/></svg><span class="ko">다크 모드</span><span class="en">Dark mode</span></h3>
+          <p><span class="ko">기기 설정을 따릅니다. 따로 켤 것이 없습니다.</span><span class="en">Follows your device. Nothing to switch on.</span></p>
+        </div>
+        <div class="tile">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg><span class="ko">프로젝트 칩</span><span class="en">Project chips</span></h3>
+          <p><span class="ko">일·삶·사이드를 한 번 눌러 가릅니다.</span><span class="en">Split work, life and side projects with one tap.</span></p>
+        </div>
+        <div class="tile">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V6a2 2 0 0 1 2-2h13v16H6a2 2 0 0 1-2-2Z"/><path d="M8 7h7M8 11h7"/></svg><span class="ko">사용설명서</span><span class="en">User guide</span></h3>
+          <p><span class="ko">설정 안에 있습니다. 하루가 굴러가는 순서대로.</span><span class="en">Inside Settings, ordered the way a day actually runs.</span></p>
+        </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 프라이버시 ─────────────────────────────────────── -->
+  <section>
+    <div class="wrap sec reveal">
+      <div class="rail"><span class="ko">내 기기</span><span class="en">On device</span></div>
+      <div>
+        <h2>
+          <span class="ko">일정도 알람도 기기 안에만 있습니다</span>
+          <span class="en">Your events and alarms stay on your phone</span>
+        </h2>
+        <p>
+          <span class="ko">플랜플은 가입이 없습니다. 계정도, 이메일도 받지 않습니다.
+            <strong>공유를 직접 켜지 않으면 서버로 나가는 요청이 한 건도 없습니다.</strong>
+            광고도 추적도 없습니다.</span>
+          <span class="en">Planple has no sign-up. No account, no email address.
+            <strong>Unless you turn sharing on yourself, not a single request
+            leaves your device.</strong> No ads, no tracking.</span>
+        </p>
+        <p>
+          <span class="ko">공유를 켜면 <strong>그 프로젝트의 항목만</strong> 올라갑니다.
+            다른 프로젝트, 하루 리뷰, 설정값은 서버가 모릅니다.
+            알람은 개인적인 것이라 <strong>공유 항목이어도 각자 기기에만</strong> 남습니다.</span>
+          <span class="en">Turn sharing on and <strong>only that project's items</strong>
+            go up. Other projects, your daily reviews, and settings are unknown to the
+            server. Alarms are personal, so <strong>even on shared items they stay
+            on each device.</strong></span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 요금 ───────────────────────────────────────────── -->
+  <section>
+    <div class="wrap sec reveal">
+      <div class="rail"><span class="ko">요금</span><span class="en">Pricing</span></div>
+      <div>
+        <h2><span class="ko">거의 다 무료입니다</span><span class="en">Nearly all of it is free</span></h2>
+        <p>
+          <span class="ko">목표를 쪼개고, 타임라인에 앉히고, 알람을 여러 개 붙이고,
+            위젯을 쓰는 것 — 여기까지 다 무료입니다.</span>
+          <span class="en">Breaking down goals, the timeline, multiple alarms,
+            the widgets — all free.</span>
+        </p>
+        <div class="plans">
+          <div class="plan lead">
+            <h3><span class="ko">플랜플</span><span class="en">Planple</span></h3>
+            <div class="price"><span class="ko">무료</span><span class="en">Free</span></div>
+            <ul class="ticks">
+              <li><span class="ko">연·월·주·오늘 목표와 할 일</span><span class="en">Year, month, week, and today</span></li>
+              <li><span class="ko">24시간 타임라인 · 캘린더</span><span class="en">24-hour timeline · calendar</span></li>
+              <li><span class="ko">일정별 다중 알람</span><span class="en">Multiple alarms per event</span></li>
+              <li><span class="ko">위젯 · 하루 리뷰 · 일괄 밀기</span><span class="en">Widgets · daily review · bulk shift</span></li>
+            </ul>
+          </div>
+          <div class="plan">
+            <h3><span class="ko">플랜플 프로</span><span class="en">Planple Pro</span></h3>
+            <div class="price">$2.99<small><span class="ko">한 번만</span><span class="en">one-time</span></small></div>
+            <ul class="ticks">
+              <li><span class="ko"><strong>프로젝트 공유 시작</strong></span>
+                <span class="en"><strong>Start sharing a project</strong></span></li>
+              <li><span class="ko">초대받아 참여하는 건 프로가 아니어도 됩니다</span>
+                <span class="en">Joining by invite doesn't need Pro</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 지원 ───────────────────────────────────────────── -->
+  <section id="support">
+    <div class="wrap sec reveal">
+      <div class="rail"><span class="ko">문의</span><span class="en">Support</span></div>
+      <div>
+        <h2><span class="ko">직접 만들고 있습니다</span><span class="en">Made by one person</span></h2>
+        <p>
+          <span class="ko">불편한 점이나 필요한 기능이 있으면 편하게 알려주세요.
+            제가 직접 읽고 고칩니다.</span>
+          <span class="en">If something's awkward or missing, just tell me.
+            I read it myself and fix it.</span>
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-quiet" href="mailto:001.oceans@gmail.com?subject=Planple">
+            001.oceans@gmail.com
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 마무리 ─────────────────────────────────────────── -->
+  <section class="closer">
+    <div class="wrap">
+      <h2>
+        <span class="ko">올해 목표를 오늘 할 일로 바꿔 보세요</span>
+        <span class="en">Turn this year's goal into today's task</span>
+      </h2>
+      <p style="color:var(--muted); margin:.6rem auto 1.6rem; max-width:40ch">
+        <span class="ko">여기까지 오면 실행이 시작됩니다.</span>
+        <span class="en">That's where doing actually starts.</span>
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://apps.apple.com/app/id6793577924">
+          <span class="ko">App Store에서 받기</span><span class="en">Get it on the App Store</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>© 2026 플랜플</span>
+    <span class="spacer"></span>
+    <a href="https://planple-api-production.up.railway.app/privacy/">
+      <span class="ko">개인정보 처리방침</span><span class="en">Privacy Policy</span>
+    </a>
+    <a href="#support"><span class="ko">문의</span><span class="en">Support</span></a>
+    <a href="https://apps.apple.com/app/id6793577924">App Store</a>
+  </div>
+</footer>
+
+<script>
+// 언어 전환. 본문은 이미 양쪽 다 문서에 있고 lang 속성이 무엇을 보일지 정한다.
+// 스크린샷만 src를 바꾼다 — 숨긴 img도 브라우저가 받아 오기 때문에
+// 양쪽을 다 두면 통신량이 두 배가 된다.
+// 스크롤 등장. **JS가 살아 있을 때만** 숨김 상태를 켠다 —
+// 처음부터 opacity:0으로 두면 JS가 죽었을 때 페이지가 통째로 사라진다.
+(function () {
+  if (!('IntersectionObserver' in window)) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.documentElement.classList.add('js-reveal');
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      e.target.classList.add('in');
+      io.unobserve(e.target);
+    });
+  }, { rootMargin: '0px 0px -12% 0px' });
+  document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+})();
+
+(function () {
+  var KEY = 'planple-lang';
+  var buttons = document.querySelectorAll('[data-set-lang]');
+
+  function apply(lang) {
+    document.documentElement.lang = lang;
+    buttons.forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.setLang === lang));
+    });
+    document.querySelectorAll('img[data-ko-src]').forEach(function (img) {
+      var next = img.dataset[lang === 'en' ? 'enSrc' : 'koSrc'];
+      if (next && img.getAttribute('src') !== next) img.setAttribute('src', next);
+      var alt = img.dataset[lang === 'en' ? 'enAlt' : 'koAlt'];
+      if (alt) img.setAttribute('alt', alt);
+    });
+    document.title = lang === 'en'
+      ? 'Planple — this year’s goal, broken down to today'
+      : '플랜플 — 올해 목표를 오늘 할 일로';
+  }
+
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      try { localStorage.setItem(KEY, b.dataset.setLang); } catch (e) {}
+      apply(b.dataset.setLang);
+    });
+  });
+
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  var start;
+  if (saved === 'ko' || saved === 'en') {
+    start = saved;                       // 사용자가 고른 것이 언제나 우선
+  } else {
+    var device = (navigator.language || 'ko').toLowerCase();
+    start = device.indexOf('ko') === 0 ? 'ko' : 'en';
+  }
+  apply(start);
+})();
+</script>
+</body>
+</html>
