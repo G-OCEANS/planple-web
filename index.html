@@ -1,5 +1,7 @@
 <!doctype html>
-<html lang="ko">
+<!-- data-android: "soon" = 비공개 테스트 중(플레이 버튼 숨김, 안내만) · "live" = 프로덕션 게시됨(플레이 버튼 표시).
+     프로덕션 게시되면 이 값만 "live"로 바꿔 푸시한다. -->
+<html lang="ko" data-android="soon">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -113,6 +115,13 @@ header {
 .btn-quiet { color: var(--accent-ink); border: 1.5px solid var(--hairline); }
 .btn-quiet:hover { border-color: var(--accent); }
 .btn-sm { padding: .5rem 1rem; font-size: .87rem; border-radius: 11px; }
+/* 안드로이드 출시 스위치 — <html data-android="soon|live">. 둘 중 하나만 보인다. */
+html:not([data-android="live"]) .android-live { display: none !important; }
+html[data-android="live"] .android-soon { display: none !important; }
+.android-soon { display: inline-flex; align-items: center; gap: .45rem; font-size: .87rem;
+  color: var(--muted); padding: .55rem .2rem; }
+.android-soon .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
 :where(a, button):focus-visible { outline: 2.5px solid var(--accent);
   outline-offset: 2px; border-radius: 8px; }
 
@@ -375,7 +384,8 @@ footer a:hover { color: var(--ink); border-color: var(--accent); }
     <div class="hero-grid">
       <div>
         <p class="eyebrow">
-          <span class="ko">iPhone · iPad</span><span class="en">iPhone · iPad</span>
+          <span class="android-live"><span class="ko">iPhone · iPad · Android</span><span class="en">iPhone · iPad · Android</span></span>
+          <span class="android-soon" style="padding:0;font-size:inherit;color:inherit"><span class="ko">iPhone · iPad · Android 준비 중</span><span class="en">iPhone · iPad · Android coming soon</span></span>
         </p>
         <h1>
           <span class="ko">올해 목표를<br>오늘 할 일로<br><span class="soft">쪼갭니다</span></span>
@@ -391,10 +401,17 @@ footer a:hover { color: var(--ink); border-color: var(--accent); }
           <a class="btn btn-primary" href="https://apps.apple.com/app/id6793577924">
             <span class="ko">App Store에서 받기</span><span class="en">Get it on the App Store</span>
           </a>
+          <a class="btn btn-primary android-live" href="https://play.google.com/store/apps/details?id=com.ocean.schedule_app">
+            <span class="ko">Google Play에서 받기</span><span class="en">Get it on Google Play</span>
+          </a>
           <a class="btn btn-quiet" href="#how">
             <span class="ko">어떻게 되는지 보기</span><span class="en">See how it works</span>
           </a>
         </div>
+        <p class="android-soon"><span class="dot" aria-hidden="true"></span>
+          <span class="ko">Android는 비공개 테스트 중입니다. 곧 Google Play에 올라옵니다.</span>
+          <span class="en">Android is in closed testing. Coming to Google Play soon.</span>
+        </p>
         <ul class="facts">
           <li><span class="ko">가입 없음</span><span class="en">No sign-up</span></li>
           <li><span class="ko">광고 없음</span><span class="en">No ads</span></li>
@@ -687,8 +704,8 @@ footer a:hover { color: var(--ink); border-color: var(--accent); }
       <div>
         <h2><span class="ko">있으면 편한 것들</span><span class="en">The rest of it</span></h2>
         <p>
-          <span class="ko">눈에 띄지 않지만, 없으면 아쉬운 것들입니다. 여기 있는 여섯 가지도 무료입니다.</span>
-          <span class="en">Quiet things you’d miss if they weren’t there. These six are free too.</span>
+          <span class="ko">눈에 띄지 않지만, 없으면 아쉬운 것들입니다. 여기 있는 일곱 가지도 무료입니다.</span>
+          <span class="en">Quiet things you’d miss if they weren’t there. These seven are free too.</span>
         </p>
         <div class="grid">
         <div class="tile">
@@ -710,6 +727,10 @@ footer a:hover { color: var(--ink); border-color: var(--accent); }
         <div class="tile">
           <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg><span class="ko">프로젝트 칩</span><span class="en">Project chips</span></h3>
           <p><span class="ko">일·삶·사이드를 한 번 눌러 가릅니다.</span><span class="en">Split work, life and side projects with one tap.</span></p>
+        </div>
+        <div class="tile">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 13h5"/></svg><span class="ko">홈 화면 위젯</span><span class="en">Home screen widget</span></h3>
+          <p><span class="ko">오늘 일정과 할 일을 앱을 열지 않아도. iPhone은 잠금 화면에도.</span><span class="en">Today’s events and to-dos without opening the app. On iPhone, on the Lock Screen too.</span></p>
         </div>
         <div class="tile">
           <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V6a2 2 0 0 1 2-2h13v16H6a2 2 0 0 1-2-2Z"/><path d="M8 7h7M8 11h7"/></svg><span class="ko">사용설명서</span><span class="en">User guide</span></h3>
@@ -824,7 +845,14 @@ footer a:hover { color: var(--ink); border-color: var(--accent); }
         <a class="btn btn-primary" href="https://apps.apple.com/app/id6793577924">
           <span class="ko">App Store에서 받기</span><span class="en">Get it on the App Store</span>
         </a>
+        <a class="btn btn-primary android-live" href="https://play.google.com/store/apps/details?id=com.ocean.schedule_app">
+          <span class="ko">Google Play에서 받기</span><span class="en">Get it on Google Play</span>
+        </a>
       </div>
+      <p class="android-soon" style="justify-content:center;margin-top:.9rem"><span class="dot" aria-hidden="true"></span>
+        <span class="ko">Android는 곧 Google Play에 올라옵니다.</span>
+        <span class="en">Android is coming to Google Play soon.</span>
+      </p>
     </div>
   </section>
 </main>
@@ -838,6 +866,7 @@ footer a:hover { color: var(--ink); border-color: var(--accent); }
     </a>
     <a href="#support"><span class="ko">문의</span><span class="en">Support</span></a>
     <a href="https://apps.apple.com/app/id6793577924">App Store</a>
+    <a class="android-live" href="https://play.google.com/store/apps/details?id=com.ocean.schedule_app">Google Play</a>
   </div>
 </footer>
 
