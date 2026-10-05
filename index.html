@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- data-android: "soon" = 비공개 테스트 중(플레이 버튼 숨김, 안내만) · "live" = 프로덕션 게시됨(플레이 버튼 표시).
+<!-- data-android: "soon" = 공개 전(출시 안내 버튼 표시) · "live" = 프로덕션 게시됨(플레이 버튼 표시).
      프로덕션 게시되면 이 값만 "live"로 바꿔 푸시한다. -->
 <html lang="ko" data-android="soon">
 <head>
@@ -117,7 +117,9 @@ header {
 .btn-sm { padding: .5rem 1rem; font-size: .87rem; border-radius: 11px; }
 /* 안드로이드 출시 스위치 — <html data-android="soon|live">. 둘 중 하나만 보인다. */
 html:not([data-android="live"]) .android-live { display: none !important; }
-html[data-android="live"] .android-soon { display: none !important; }
+html[data-android="live"] .android-soon,
+html[data-android="live"] .android-pending { display: none !important; }
+#android-status { scroll-margin-top: 6rem; }
 .android-soon { display: inline-flex; align-items: center; gap: .45rem; font-size: .87rem;
   color: var(--muted); padding: .55rem .2rem; }
 .android-soon .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
@@ -404,13 +406,16 @@ footer a:hover { color: var(--ink); border-color: var(--accent); }
           <a class="btn btn-primary android-live" href="https://play.google.com/store/apps/details?id=com.ocean.schedule_app">
             <span class="ko">Google Play에서 받기</span><span class="en">Get it on Google Play</span>
           </a>
+          <a class="btn btn-quiet android-pending" href="#android-status">
+            <span class="ko">Android 출시 준비 중</span><span class="en">Android release info</span>
+          </a>
           <a class="btn btn-quiet" href="#how">
             <span class="ko">어떻게 되는지 보기</span><span class="en">See how it works</span>
           </a>
         </div>
         <p class="android-soon"><span class="dot" aria-hidden="true"></span>
-          <span class="ko">Android는 비공개 테스트 중입니다. 곧 Google Play에 올라옵니다.</span>
-          <span class="en">Android is in closed testing. Coming to Google Play soon.</span>
+          <span class="ko">Android는 Google Play 출시 심사 중입니다.</span>
+          <span class="en">Android is under review for release on Google Play.</span>
         </p>
         <ul class="facts">
           <li><span class="ko">가입 없음</span><span class="en">No sign-up</span></li>
@@ -831,6 +836,20 @@ footer a:hover { color: var(--ink); border-color: var(--accent); }
     </div>
   </section>
 
+  <!-- 공개 전에는 다운로드 오류 대신 현재 출시 상태를 안내한다. -->
+  <section id="android-status" class="android-pending" aria-labelledby="android-status-title">
+    <div class="wrap">
+      <p class="eyebrow">Google Play</p>
+      <h2 id="android-status-title"><span class="ko">Android 출시를 준비하고 있어요</span><span class="en">Planple for Android is on its way</span></h2>
+      <p class="lede">
+        <span class="ko">현재 Google Play 출시 심사가 진행 중입니다. 아직 일반 다운로드는 열리지 않았어요.
+          공개되면 이 페이지의 Android 버튼에서 바로 다운로드할 수 있습니다.</span>
+        <span class="en">Planple is currently under review for release on Google Play. Public downloads are not available yet.
+          Once it is released, you can download it from the Android buttons on this page.</span>
+      </p>
+    </div>
+  </section>
+
   <!-- ── 마무리 ─────────────────────────────────────────── -->
   <section class="closer">
     <div class="wrap">
@@ -849,10 +868,13 @@ footer a:hover { color: var(--ink); border-color: var(--accent); }
         <a class="btn btn-primary android-live" href="https://play.google.com/store/apps/details?id=com.ocean.schedule_app">
           <span class="ko">Google Play에서 받기</span><span class="en">Get it on Google Play</span>
         </a>
+        <a class="btn btn-quiet android-pending" href="#android-status">
+          <span class="ko">Android 출시 준비 중</span><span class="en">Android release info</span>
+        </a>
       </div>
       <p class="android-soon" style="justify-content:center;margin-top:.9rem"><span class="dot" aria-hidden="true"></span>
-        <span class="ko">Android는 곧 Google Play에 올라옵니다.</span>
-        <span class="en">Android is coming to Google Play soon.</span>
+        <span class="ko">Android는 Google Play 출시 심사 중입니다.</span>
+        <span class="en">Android is under review for release on Google Play.</span>
       </p>
     </div>
   </section>
@@ -868,6 +890,7 @@ footer a:hover { color: var(--ink); border-color: var(--accent); }
     <a href="#support"><span class="ko">문의</span><span class="en">Support</span></a>
     <a href="https://apps.apple.com/app/id6793577924">App Store</a>
     <a class="android-live" href="https://play.google.com/store/apps/details?id=com.ocean.schedule_app">Google Play</a>
+    <a class="android-pending" href="#android-status"><span class="ko">Android 출시 안내</span><span class="en">Android release info</span></a>
   </div>
 </footer>
 
