@@ -1,0 +1,102 @@
+{
+  "release": "1.4.9(44)",
+  "note": "Unmodified actual app captures. iOS build 43 captures retained by the approved build 44 store asset manifest; Android captures are build 44. Demo data, not user statistics. CSS handles framing only.",
+  "items": [
+    {
+      "file": "assets/refresh-1.4.9/iphone-ko-timeline-tdl.png",
+      "source": "store_assets/refresh-1.4.9/raw/iphone/ko-timeline-tdl.png",
+      "captureBuild": 43,
+      "sha256": "9f88e372fdde139762994da66977c819270f8a88b210436b5555a4362d4a2bd3"
+    },
+    {
+      "file": "assets/refresh-1.4.9/iphone-ko-alarms.png",
+      "source": "store_assets/refresh-1.4.9/raw/iphone/ko-alarms.png",
+      "captureBuild": 43,
+      "sha256": "3b6de2f463058a2901fd37b068515c1b283a8a573598460446e9903065e43dbd"
+    },
+    {
+      "file": "assets/refresh-1.4.9/iphone-ko-shift.png",
+      "source": "store_assets/refresh-1.4.9/raw/iphone/ko-shift.png",
+      "captureBuild": 43,
+      "sha256": "d0d5bab2d4577c94cdb97dbec674fc58ee709dff489cafd38460a6ed7581f59f"
+    },
+    {
+      "file": "assets/refresh-1.4.9/iphone-ko-period.png",
+      "source": "store_assets/refresh-1.4.9/raw/iphone/ko-period.png",
+      "captureBuild": 43,
+      "sha256": "9a4b8f7a3dd79033865e86dc87511d7b0298ead0b25070cfb8c1a3a1edb95841"
+    },
+    {
+      "file": "assets/refresh-1.4.9/iphone-ko-project.png",
+      "source": "store_assets/refresh-1.4.9/raw/iphone/ko-project.png",
+      "captureBuild": 43,
+      "sha256": "fa20d8a9dccb4e4252e1df39f06f9bd07ce7065bb30206e682378672085aab37"
+    },
+    {
+      "file": "assets/refresh-1.4.9/iphone-en-timeline-tdl.png",
+      "source": "store_assets/refresh-1.4.9/raw/iphone/en-timeline-tdl.png",
+      "captureBuild": 43,
+      "sha256": "078be479d8e5dd6c8d6496fbb9b7f2d9622d9149893a750370db2d9faaacf338"
+    },
+    {
+      "file": "assets/refresh-1.4.9/iphone-en-alarms.png",
+      "source": "store_assets/refresh-1.4.9/raw/iphone/en-alarms.png",
+      "captureBuild": 43,
+      "sha256": "a04aadcaa5c7de88e7d12bb2b7a4fc21e89d269779e9367348fa14dd5e900174"
+    },
+    {
+      "file": "assets/refresh-1.4.9/iphone-en-shift.png",
+      "source": "store_assets/refresh-1.4.9/raw/iphone/en-shift.png",
+      "captureBuild": 43,
+      "sha256": "085d0b028a1e97315a0865a7deca6b16f52fee1d19fbcaa3897212e45c636daf"
+    },
+    {
+      "file": "assets/refresh-1.4.9/iphone-en-period.png",
+      "source": "store_assets/refresh-1.4.9/raw/iphone/en-period.png",
+      "captureBuild": 43,
+      "sha256": "79fd11f03fb32b5998cea44b03077e0b513f7061029aa52e91d2e5404a8a532a"
+    },
+    {
+      "file": "assets/refresh-1.4.9/iphone-en-project.png",
+      "source": "store_assets/refresh-1.4.9/raw/iphone/en-project.png",
+      "captureBuild": 43,
+      "sha256": "eed1599e2906a5fcca16798c54d24db6996c5b1affeed4309df24bd8f934f74a"
+    },
+    {
+      "file": "assets/refresh-1.4.9/android-ko-tdl.png",
+      "source": "store_assets/release-1.4.9-44/raw/android-phone/ko-tdl.png",
+      "captureBuild": 44,
+      "sha256": "23ca042730a2d37c7bcb6bc8ff379977252ae23e36bfc94d4919c7098994b1bb"
+    },
+    {
+      "file": "assets/refresh-1.4.9/android-ko-insight.png",
+      "source": "store_assets/release-1.4.9-44/raw/android-phone/ko-insight.png",
+      "captureBuild": 44,
+      "sha256": "33989d958a60b9c2f804d1cf4ab4e6c6245a182801d3deeded52d090c5bdc1ab"
+    },
+    {
+      "file": "assets/refresh-1.4.9/android-en-tdl.png",
+      "source": "store_assets/release-1.4.9-44/raw/android-phone/en-tdl.png",
+      "captureBuild": 44,
+      "sha256": "57c32db69cc0cb3d10bc74d8b0de76b88062ec63455a27de18fe2e597c6bf790"
+    },
+    {
+      "file": "assets/refresh-1.4.9/android-en-insight.png",
+      "source": "store_assets/release-1.4.9-44/raw/android-phone/en-insight.png",
+      "captureBuild": 44,
+      "sha256": "2d28694da2b9f14a00bbb87ea5c989efaa3af2375019dbc9c1cb497a345bca81"
+    },
+    {
+      "file": "assets/refresh-1.4.9/ipad-ko-calendar.png",
+      "source": "store_assets/refresh-1.4.9/raw/ipad/ko-calendar.png",
+      "captureBuild": 43,
+      "sha256": "d52c23fb3c02af714ed51acd7275c5c65ba4004dd827114e82d137808f6fee8c"
+    },
+    {
+      "file": "assets/refresh-1.4.9/ipad-en-calendar.png",
+      "source": "store_assets/refresh-1.4.9/raw/ipad/en-calendar.png",
+      "captureBuild": 43,
+      "sha256": "764e79c39a1131e75aa1d616822df22268f2979613c42b1642388d31cc60aeca"
+    }
+  ]
+}
