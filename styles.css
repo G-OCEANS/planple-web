@@ -376,7 +376,8 @@ em {
 }
 .art-caption {
   position:absolute;
-  right:0;
+  left:0;
+  right:auto;
   bottom:-20px;
   color:var(--muted);
   font-size:10px
