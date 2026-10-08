@@ -2,7 +2,8 @@
 
 플랜플 iOS·Android 앱의 공식 홍보 사이트. GitHub Pages로 공개하는 정적 HTML/CSS/JavaScript 사이트다.
 
-- 공개 주소: https://g-oceans.github.io/planple-web/
+- 대표 도메인: https://planple.app/ (2026-10-09 GitHub 등록 완료, Squarespace DNS 전환·HTTPS 발급 확인 대기)
+- 기존 GitHub Pages 주소: https://g-oceans.github.io/planple-web/
 - App Store: https://apps.apple.com/app/id6793577924
 - Google Play: https://play.google.com/store/apps/details?id=com.ocean.schedule_app
 - 개인정보 처리방침 정본: https://planple-api-production.up.railway.app/privacy/
@@ -30,3 +31,9 @@
 - 이미지의 샘플 일정·기록은 설명용. 실제 사용자 데이터가 아니다.
 
 전면 개편 이전 이미지들은 과거 링크 보존을 위해 남아 있지만 현재 페이지에서는 참조하지 않는다.
+
+## 전용 도메인 연결 (2026-10-09)
+
+- `CNAME`은 `planple.app`으로 유지한다. GitHub Pages의 사용자 지정 도메인 설정과 일치해야 한다.
+- Squarespace DNS: `@` A 레코드 4개 = `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`; `www` CNAME = `g-oceans.github.io`. 별도 웹사이트 요금제는 사용하지 않는다.
+- GitHub 도메인 등록 후 DNS를 변경한다. DNS 반영 후 인증서 발급 및 Enforce HTTPS, 대표/www/기존 주소의 접속과 링크 미리보기·앱 다운로드 링크를 검증해야 연결 완료다. 현재는 DNS 입력 대기이며 HTTPS 준비 완료로 기록하지 않는다.
