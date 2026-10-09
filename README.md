@@ -2,7 +2,7 @@
 
 플랜플 iOS·Android 앱의 공식 홍보 사이트. GitHub Pages로 공개하는 정적 HTML/CSS/JavaScript 사이트다.
 
-- 대표 도메인: https://planple.app/ (2026-10-09 GitHub 등록 완료, Squarespace DNS 전환·HTTPS 발급 확인 대기)
+- 대표 도메인: https://planple.app/ (2026-10-09 DNS 연결·HTTPS 인증서 발급 및 보안 연결 확인)
 - 기존 GitHub Pages 주소: https://g-oceans.github.io/planple-web/
 - App Store: https://apps.apple.com/app/id6793577924
 - Google Play: https://play.google.com/store/apps/details?id=com.ocean.schedule_app
@@ -36,4 +36,6 @@
 
 - `CNAME`은 `planple.app`으로 유지한다. GitHub Pages의 사용자 지정 도메인 설정과 일치해야 한다.
 - Squarespace DNS: `@` A 레코드 4개 = `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`; `www` CNAME = `g-oceans.github.io`. 별도 웹사이트 요금제는 사용하지 않는다.
-- GitHub 도메인 등록 후 DNS를 변경한다. DNS 반영 후 인증서 발급 및 Enforce HTTPS, 대표/www/기존 주소의 접속과 링크 미리보기·앱 다운로드 링크를 검증해야 연결 완료다. 현재는 DNS 입력 대기이며 HTTPS 준비 완료로 기록하지 않는다.
+- 2026-10-09 12:28 KST Squarespace 사용자 지정 DNS 5개와 공개 DNS 일치 확인. 기존 Domain Connect·이메일 보안 TXT는 유지했다.
+- 12:31~12:34 KST 대표 도메인과 www의 인증서 승인 및 실제 TLS 검증 통과, Enforce HTTPS 활성화 확인. 대표 페이지·정적 파일 12개와 한영 앱 이미지 16개가 원본과 일치하며 App Store/Google Play 링크가 유지됨을 확인했다.
+- 12:38 KST `http://planple.app/`, `http(s)://www.planple.app/`, 기존 GitHub Pages 주소가 모두 `https://planple.app/`로 이동하고 HTTP 200을 반환함을 확인했다. 설정 직후에는 약 600초 CDN 캐시가 남았지만 만료 후 정상 전파됐다. 인증서 오류를 우회하지 않았으며, 추가 Squarespace 웹사이트 요금제는 필요 없다.
